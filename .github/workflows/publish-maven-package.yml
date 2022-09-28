@@ -1,0 +1,70 @@
+name: Updated repository in packages branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      #Manually first (once) set up an orphaned branch:
+      # git switch --orphan packages
+      # git commit --allow-empty -m "Initial commit on packages branch"
+      # git push origin packages:packages
+
+      - name: Install Package to packages branch
+        run: |
+          mkdir localm2
+          mkdir -p repository/com/eficode/atlassian/JiraShortcuts
+          
+          echo Installing parent pom file
+          mvn install:install-file -Dpackaing=pom -Dfile=pom.xml -DpomFile=pom.xml -Dmaven.repo.local=localm2/ -DcreateChecksum=true
+          
+          echo Compiling, Packaging and Installing Groovy 2.5 version of library to local m2 directory
+          mvn install -f pom-2.5.xml -Dmaven.repo.local=localm2/ -DcreateChecksum=true
+          
+          echo Compiling, Packaging and Installing Groovy 3.0 version of library to local m2 directory
+          mvn install -f pom-3.0.xml -Dmaven.repo.local=localm2/ -DcreateChecksum=true
+          
+          echo Copying the new JAR files to repository which will be added to git branch "packages"
+          rsync -avh --checksum localm2/com/eficode repository/com/eficode/
+          
+          
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          echo Adding repository dir temporarily so stash picks it up
+          git add repository
+          echo Stashing current changes
+          git stash
+          echo Running git fetch
+          git fetch
+          echo Checking out Packages repo
+          git checkout packages
+          echo Applying stash, overwriting any checked out changes
+          git checkout stash -- .
+          echo Running git reset, to ignore any automatically added tracked changes
+          git reset
+          echo Adding repository files to git
+          git add repository/*
+          echo Committing changes
+          git commit -m "Updated packages to $VERSION"
+          echo Pushing changes
+          git push
+
