@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Wed Sep 28 15:43:18 UTC 2022
+https\://nexus.adaptavist.com/content/repositories/external/.error=
+https\://github.com/eficode/devStack/raw/packages/repository/.lastUpdated=1664379798439
+https\://repo1.maven.org/maven2/.error=
+https\://nexus.adaptavist.com/content/repositories/external/.lastUpdated=1664379797176
+https\://repo1.maven.org/maven2/.lastUpdated=1664379796977
+https\://packages.atlassian.com/mvn/maven-atlassian-external/.lastUpdated=1664379797325
+https\://packages.atlassian.com/mvn/maven-atlassian-external/.error=

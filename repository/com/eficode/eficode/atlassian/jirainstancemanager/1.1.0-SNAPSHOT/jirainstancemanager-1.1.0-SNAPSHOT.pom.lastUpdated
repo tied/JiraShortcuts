@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Wed Sep 28 15:43:22 UTC 2022
+https\://github.com/eficode/devStack/raw/packages/repository/.lastUpdated=1664379801765
+https\://github.com/eficode/JiraInstanceManagerRest/raw/packages/repository/.lastUpdated=1664379802622
+https\://repo1.maven.org/maven2/.error=
+https\://github.com/eficode/devStack/raw/packages/repository/.error=
+https\://repo1.maven.org/maven2/.lastUpdated=1664379801357
+https\://packages.atlassian.com/mvn/maven-atlassian-external/.lastUpdated=1664379801427
+https\://packages.atlassian.com/mvn/maven-atlassian-external/.error=
