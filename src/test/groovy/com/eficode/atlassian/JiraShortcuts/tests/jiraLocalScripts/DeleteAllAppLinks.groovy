@@ -21,3 +21,5 @@ jc.appLinkService.getApplicationLinks().each { appLink ->
     jc.deleteApplicationLink(appLink)
 }
 
+
+log.info("Script END")

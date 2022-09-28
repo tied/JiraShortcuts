@@ -18,14 +18,24 @@ class ApplicationLinkSpec extends Specification{
     String bitbucketBaseUrl = "http://bitbucket.domain.se:7990"
 
     @Shared
-    JiraInstanceManagerRest jiraRest = new JiraInstanceManagerRest(jiraBaseUrl, "admin", "admin")
+    JiraInstanceManagerRest jiraRest = new JiraInstanceManagerRest("admin", "admin", jiraBaseUrl)
 
-
+    @Shared
+    String jiraScriptPath = "src/test/groovy/com/eficode/atlassian/JiraShortcuts/tests/jiraLocalScripts/"
 
     def setupSpec() {
 
 
+        Map linkCleanup = jiraRest.executeLocalScriptFile(new File(jiraScriptPath + "DeleteAllAppLinks.groovy"))
+        assert linkCleanup.errors == null  && linkCleanup.success
 
 
+    }
+
+    def "test"() {
+
+        expect:
+        Map linkCrud = jiraRest.executeLocalScriptFile(new File(jiraScriptPath + "CrudBitbucketLink.groovy"))
+        assert linkCrud.errors == null  && linkCrud.success && linkCrud.log.last().endsWith("Script END")
     }
 }
