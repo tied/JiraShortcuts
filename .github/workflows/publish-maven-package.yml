@@ -63,7 +63,7 @@ jobs:
       - name: Copying JAR files
         run: |
           echo Copying the new JAR files to repository which will be added to git branch "packages"
-          rsync -avh --checksum ~/.m2/repository/com/eficode/atlassian/JiraShortcuts repository/com/eficode/atlassian/JiraShortcuts/
+          rsync -avh --checksum ~/.m2/repository/com/eficode/atlassian/JiraShortcuts/ repository/com/eficode/atlassian/JiraShortcuts/
           
       - name: Committing and pushing JAR files
         run: |
