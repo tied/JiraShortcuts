@@ -44,7 +44,7 @@ jobs:
           mvn install -f pom-3.0.xml -Dmaven.repo.local=localm2/ -DcreateChecksum=true
           
           echo Copying the new JAR files to repository which will be added to git branch "packages"
-          rsync -avh --checksum localm2/com/eficode repository/com/eficode/
+          rsync -avh --checksum localm2/com/eficode/atlassian/JiraShortcuts repository/com/eficode/atlassian/JiraShortcuts/
           
           
           git config user.name github-actions
