@@ -67,14 +67,16 @@ class JiraShortcuts {
 
     }
 
+    ArrayList<ApplicationLink> getApplicationLinks() {
+        return appLinkService.getApplicationLinks().toList()
+    }
+
     ApplicationLink getApplicationLink(String nameOrUrl) {
 
-
-
-
-        return appLinkService.getApplicationLinks().find {it.name == nameOrUrl || it.displayUrl.toString() == nameOrUrl || it.rpcUrl.toString() == nameOrUrl} as ApplicationLink
+        return getApplicationLinks().find {it.name == nameOrUrl || it.displayUrl.toString() == nameOrUrl || it.rpcUrl.toString() == nameOrUrl} as ApplicationLink
 
     }
+
 
     boolean deleteApplicationLink(ApplicationLink appLink) {
         appLinkService.deleteReciprocatedApplicationLink(appLink)
