@@ -4,6 +4,7 @@ import com.atlassian.applinks.api.ApplicationLink
 import com.atlassian.applinks.api.ApplicationType
 import com.atlassian.applinks.core.DefaultApplicationLinkService
 import com.atlassian.applinks.core.link.DefaultApplicationLink
+import com.atlassian.applinks.spi.auth.AuthenticationScenario
 import com.atlassian.applinks.spi.link.ApplicationLinkDetails
 import com.atlassian.applinks.spi.link.MutatingApplicationLinkService
 import com.atlassian.applinks.spi.util.TypeAccessor
@@ -47,6 +48,21 @@ class JiraShortcuts {
 
 
         DefaultApplicationLink appLink = appLinkService.createApplicationLink( ComponentAccessor.getOSGiComponentInstanceOfType(TypeAccessor).getApplicationType(applicationType), linkDetails) as DefaultApplicationLink
+
+        appLinkService.configureAuthenticationForApplicationLink(
+                appLink,
+                new AuthenticationScenario() {
+                    public boolean isCommonUserBase() {
+                        return true;
+                    }
+
+                    public boolean isTrusted() {
+                        return true;
+                    }
+                }
+                ,remoteAdminUser, remoteAdminPw
+        )
+
         return appLink
 
     }
