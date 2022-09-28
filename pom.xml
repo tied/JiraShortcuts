@@ -31,7 +31,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>3.0.13</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
             <type>pom</type>
         </dependency>
 
@@ -39,6 +39,7 @@
             <groupId>com.eficode</groupId>
             <artifactId>devstack</artifactId>
             <version>1.1.0-SNAPSHOT-groovy-3.0</version>
+            <scope>test</scope>
         </dependency>
 
 
@@ -124,12 +125,18 @@
 
     <build>
         <!--sourceDirectory>${basedir}/src/main/groovy/</sourceDirectory-->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <!-- Configured in pluginManagement instead of plugins, because we do not want a shaded parent POM -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -143,26 +150,7 @@
                             <!-- final name of the shaded jar will be ${project.artifactId}-standalone -->
                             <shadedClassifierName>standalone</shadedClassifierName>
 
-                            <!--artifactSet>
-                                <excludes>
-                                    <exclude>org.codehaus.groovy:groovy</exclude>
-                                    <exclude>com.google.code.gson:gson</exclude>
-                                    <exclude>org.apache.httpcomponents</exclude>
-                                    <exclude>commons-*</exclude>
 
-                                </excludes>
-
-                            </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>kong.unirest.</pattern>
-                                    <shadedPattern>com.eficode.shaded.kong.unirest.</shadedPattern>
-                                </relocation>
-                            </relocations-->
-
-                            <!-- NOTE: Any dependencies of the project will not show up in the standalone pom.
-                            This means that if those dependencies are not properly relocated and there is a class-loading conflict,
-                            user would not be able to figure out where the conflicting dependency is. -->
                             <createDependencyReducedPom>true</createDependencyReducedPom>
 
                         </configuration>
