@@ -3,7 +3,7 @@
   <groupId>com.eficode.atlassian</groupId>
   <artifactId>JiraShortcuts</artifactId>
   <versioning>
-    <lastUpdated>20220928171434</lastUpdated>
+    <lastUpdated>20220928193419</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,7 +11,7 @@
       <snapshotVersion>
         <extension>pom</extension>
         <value>2.0-SNAPSHOT</value>
-        <updated>20220928171434</updated>
+        <updated>20220928193419</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>
