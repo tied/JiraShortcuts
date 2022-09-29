@@ -2,6 +2,7 @@ package com.eficode.atlassian.JiraShortcuts
 
 import com.atlassian.applinks.api.ApplicationLink
 import com.atlassian.applinks.api.ApplicationType
+import com.atlassian.applinks.api.application.bitbucket.BitbucketApplicationType
 import com.atlassian.applinks.core.DefaultApplicationLinkService
 import com.atlassian.applinks.core.link.DefaultApplicationLink
 import com.atlassian.applinks.spi.auth.AuthenticationScenario
@@ -26,7 +27,7 @@ class JiraShortcuts {
      * @param remoteUrl Url of the remote application, including protocol and port
      * @param remoteAdminUser An admin username on the remote application
      * @param remoteAdminPw Corresponding password
-     * @return Thre created application link
+     * @return The created application link
      */
     ApplicationLink createApplicationLink(Class<ApplicationType> applicationType, String linkName, boolean linkIsPrimary = true, String remoteUrl, String remoteAdminUser, String remoteAdminPw ) {
 
@@ -65,6 +66,20 @@ class JiraShortcuts {
 
         return appLink
 
+    }
+
+
+    /**
+     * Creates an application link to a remote Bitbucket instance with "OAuth (impersonation)"
+     * @param linkName Name of the new application link
+     * @param linkIsPrimary Should this the primary link of this type
+     * @param remoteUrl Url of the remote application, including protocol and port
+     * @param remoteAdminUser An admin username on the remote application
+     * @param remoteAdminPw Corresponding password
+     * @return Thre created application link
+     */
+    ApplicationLink createApplicationLinkToBitbucket(String linkName, boolean linkIsPrimary = true, String remoteUrl, String remoteAdminUser, String remoteAdminPw ) {
+        return createApplicationLink(BitbucketApplicationType, linkName, linkIsPrimary, remoteUrl, remoteAdminUser, remoteAdminPw)
     }
 
     ArrayList<ApplicationLink> getApplicationLinks() {
