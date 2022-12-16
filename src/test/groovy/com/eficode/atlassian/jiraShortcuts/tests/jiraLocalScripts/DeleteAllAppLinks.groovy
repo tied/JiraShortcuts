@@ -1,9 +1,11 @@
-package com.eficode.atlassian.JiraShortcuts.tests.jiraLocalScripts
+package com.eficode.atlassian.jiraShortcuts.tests.jiraLocalScripts
+
+
 
 import com.onresolve.scriptrunner.runner.customisers.WithPlugin
 
 @WithPlugin("com.eficode.atlassian.JiraShortcuts")
-import com.eficode.atlassian.JiraShortcuts.JiraShortcuts
+import com.eficode.atlassian.jiraShortcuts.JiraShortcuts
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 

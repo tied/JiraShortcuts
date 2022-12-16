@@ -5,21 +5,43 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.eficode.atlassian</groupId>
-    <artifactId>JiraShortcuts</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
-    <name>JiraShortcuts - Parent pom</name>
+    <artifactId>jiraShortcuts</artifactId>
+    <version>2.0.3-SNAPSHOT-groovy-${revision}</version>
+    <name>JiraShortcuts</name>
     <description>A groovy library with shortcuts for common JIRA java actions</description>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <organization>
         <name>Eficode</name>
         <url>https://www.eficode.com/</url>
     </organization>
 
+    <profiles>
+        <profile>
+            <id>groovy-3</id>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <groovy.major.version>3.0</groovy.major.version>
+                <groovy.version>3.0.11</groovy.version>
+                <spock-core.version>2.3-groovy-3.0</spock-core.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>groovy-2.5</id>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <groovy.major.version>2.5</groovy.major.version>
+                <groovy.version>2.5.18</groovy.version>
+                <spock-core.version>2.2-groovy-2.5</spock-core.version>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
 
         <jira.version>9.1.0</jira.version>
-        <spock-core.version>2.3-groovy-3.0</spock-core.version>
         <jsd.api.version>5.0.0</jsd.api.version>
         <logging.levels>com.example;DEBUG,com.onresolve;DEBUG</logging.levels>
         <maven.compiler.source>11</maven.compiler.source>
@@ -32,7 +54,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>3.0.13</version>
+            <version>${groovy.version}</version>
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
@@ -47,7 +69,7 @@
         <dependency>
             <groupId>com.eficode</groupId>
             <artifactId>devstack</artifactId>
-            <version>1.1.0-SNAPSHOT-groovy-3.0</version>
+            <version>1.1.0-SNAPSHOT-groovy-${groovy.major.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -209,7 +231,7 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy</artifactId>
-                        <version>3.0.13</version>
+                        <version>${groovy.version}</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>

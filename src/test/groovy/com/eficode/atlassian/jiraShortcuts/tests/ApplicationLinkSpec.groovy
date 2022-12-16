@@ -1,4 +1,4 @@
-package com.eficode.atlassian.JiraShortcuts.tests
+package com.eficode.atlassian.jiraShortcuts.tests
 
 import com.eficode.atlassian.jiraInstanceManager.JiraInstanceManagerRest
 import org.slf4j.Logger

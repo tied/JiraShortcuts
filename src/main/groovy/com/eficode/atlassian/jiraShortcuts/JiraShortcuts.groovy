@@ -1,4 +1,4 @@
-package com.eficode.atlassian.JiraShortcuts
+package com.eficode.atlassian.jiraShortcuts
 
 import com.atlassian.applinks.api.ApplicationLink
 import com.atlassian.applinks.api.ApplicationType
@@ -32,27 +32,18 @@ import com.atlassian.jira.web.bean.PagerFilter
 import com.atlassian.servicedesk.api.ServiceDeskManager
 import com.atlassian.servicedesk.api.requesttype.RequestType
 import com.atlassian.servicedesk.api.requesttype.RequestTypeService
-import com.onresolve.scriptrunner.runner.customisers.PluginModule
 import com.onresolve.scriptrunner.runner.customisers.WithPlugin
 import org.apache.commons.lang3.math.NumberUtils
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
+
+
 
 @WithPlugin("com.atlassian.applinks.applinks-plugin")
 
 class JiraShortcuts {
 
     MutatingApplicationLinkService appLinkService = ComponentAccessor.getOSGiComponentInstanceOfType(MutatingApplicationLinkService) as DefaultApplicationLinkService
-
-
-
-
-    @WithPlugin("com.atlassian.servicedesk")
-    @PluginModule
-    ServiceDeskManager serviceDeskManager
-    @PluginModule
-    RequestTypeService requestTypeService
-
     ProjectManager projectManager = ComponentAccessor.getProjectManager()
     IssueManager issueManager = ComponentAccessor.getIssueManager()
     IssueService issueService = ComponentAccessor.getIssueService()
@@ -63,6 +54,8 @@ class JiraShortcuts {
     IssueLinkManager issueLinkManager = ComponentAccessor.getIssueLinkManager()
     IssueLinkService issueLinkService = ComponentAccessor.getComponentOfType(IssueLinkService)
     SearchService searchService = ComponentAccessor.getComponentOfType(SearchService)
+    ServiceDeskManager serviceDeskManager = ComponentAccessor.getOSGiComponentInstanceOfType(ServiceDeskManager)
+    RequestTypeService requestTypeService = ComponentAccessor.getOSGiComponentInstanceOfType(RequestTypeService)
 
 
     Logger log = Logger.getLogger(JiraShortcuts)
@@ -177,14 +170,20 @@ class JiraShortcuts {
      */
     def getRequestTypeFieldValue(String projectKey, String requestTypeName) {
 
+        log.debug("Getting Request type field value for request $requestTypeName in project $projectKey")
+
         CustomField requestTypeField = customFieldManager.getCustomFieldObjectsByName("Customer Request Type").first()
-        Project project = projectManager.getProjectByCurrentKey(projectKey)
-        Integer portalId = serviceDeskManager.getServiceDeskForProject(projectManager.getProjectObj(project.id)).id
+        log.debug("\tRequest type field:" + requestTypeField.toString())
+        Project project = projectManager.getProjectByCurrentKeyIgnoreCase(projectKey)
+        log.debug("\tProject:" + project.key + " (${project.id})")
+        log.debug("Using:")
+        Integer portalId = serviceDeskManager.getServiceDeskForProject(project).id
+        log.debug("\tPortal ID:" + portalId)
 
 
         RequestType requestType = requestTypeService.getRequestTypes(serviceUser, requestTypeService.newQueryBuilder().serviceDesk(portalId).build()).find { it.name == requestTypeName }
         def newRequestType = requestTypeField.getCustomFieldType().getSingularObjectFromString(projectKey.toLowerCase() + "/" + requestType.key)
-
+        log.debug("\tDetermined value to be!:" + newRequestType.toString())
 
         return newRequestType
 
@@ -261,6 +260,67 @@ class JiraShortcuts {
     }
 
     /**
+     *  A method for creating new Issue<br>
+     *  Example:<br>
+     *  createIssue([projectKey: "JIP", issueTypeName: "IT Help", summary: "This is the summary"], ["customfield_10303": "UTS-67, UTS-132"] )<br>
+     *
+     * @param issueParameters The basic parameters of an issue
+     *  <ul>
+     *      <li><b>Must contain:</b> projectKey, issueTypeName, summary</li>
+     *      <li><b>May contain:</b> description, priority</li>
+     *  </ul>
+     * @param customfieldValues a map where the key is the ID of a field and the map value is the value that is to be set in that field. For example:
+     * <ul>
+     *     <li>["customfield_10303": "UTS-67, UTS-132"]</li>
+     *     <li>[10303: ["UTS-67", "UTS-132"]</li>
+     *  </ul>
+     * @return the created Issue
+     *
+     *
+     */
+    Issue createIssue(Map issueParameters, Map customfieldValues) {
+
+        MutableIssue newIssue
+
+        log.info("Will create new Issue with the following input issueParameters:")
+        issueParameters.each { log.info(it.key + ":" + it.value) }
+
+        IssueInputParameters issueInputParameters = prepareIssueInput(issueParameters, customfieldValues)
+        IssueService.CreateValidationResult createValidationResult = issueService.validateCreate(serviceUser, issueInputParameters)
+
+        if (createValidationResult.isValid()) {
+            log.debug("\tThe issue issueParameters appears valid, will now create issue")
+            IssueService.IssueResult issueResult = issueService.create(serviceUser, createValidationResult)
+
+            if (issueResult.isValid()) {
+
+                newIssue = issueResult.issue
+
+                log.debug("\tSuccessfully created issue:" + newIssue.key)
+
+                return newIssue
+
+            } else {
+
+                log.error("There was an error when creating the issue")
+                return null
+            }
+
+        } else {
+
+            log.error("There was an error when validating the input issueParameters")
+            createValidationResult.errorCollection.each {
+                log.debug(it.toString())
+            }
+            return null
+
+        }
+
+    }
+
+
+
+    /**
      *  A method for creating new Service Desk Requests<br>
      *  Example:<br>
      *  createServiceDeskRequest("IT Help", [projectKey: "JIP", issueTypeName: "IT Help", summary: "This is the summary"], ["customfield_10303": "UTS-67, UTS-132"] )<br>
@@ -284,47 +344,16 @@ class JiraShortcuts {
      */
     Issue createServiceDeskRequest(String requestName, Map issueParameters, Map customfieldValues) {
 
-        MutableIssue newIssue
+        MutableIssue newIssue = createIssue(issueParameters, customfieldValues)
+        assert newIssue : "Error creating ServiceDeskRequest"
         CustomField requestTypeField = customFieldManager.getCustomFieldObjectsByName("Customer Request Type").first()
 
-        log.info("Will create new ServiceDesk Request with the following input issueParameters:")
-        issueParameters.each { log.info(it.key + ":" + it.value) }
+        log.debug("\tSetting request type to:" + requestName)
+        def requestType = getRequestTypeFieldValue(issueParameters.projectKey as String, requestName)
+        newIssue.setCustomFieldValue(requestTypeField, requestType)
+        newIssue = issueManager.updateIssue(serviceUser, newIssue, EventDispatchOption.ISSUE_UPDATED, false) as MutableIssue
 
-        IssueInputParameters issueInputParameters = prepareIssueInput(issueParameters, customfieldValues)
-        IssueService.CreateValidationResult createValidationResult = issueService.validateCreate(serviceUser, issueInputParameters)
-
-        if (createValidationResult.isValid()) {
-            log.debug("\tThe issue issueParameters appears valid, will now create issue")
-            IssueService.IssueResult issueResult = issueService.create(serviceUser, createValidationResult)
-
-            if (issueResult.isValid()) {
-
-                newIssue = issueResult.issue
-
-                log.debug("\tSuccessfully created issue:" + newIssue.key)
-
-                log.debug("\tSetting request type to:" + requestName)
-                def requestType = getRequestTypeFieldValue(issueParameters.projectKey as String, requestName)
-                newIssue.setCustomFieldValue(requestTypeField, requestType)
-                newIssue = issueManager.updateIssue(serviceUser, newIssue, EventDispatchOption.ISSUE_UPDATED, false) as MutableIssue
-
-                return newIssue
-
-            } else {
-
-                log.error("There was an error when creating the issue")
-                return null
-            }
-
-        } else {
-
-            log.error("There was an error when validating the input issueParameters")
-            createValidationResult.errorCollection.each {
-                log.debug(it.toString())
-            }
-            return null
-
-        }
+        return newIssue
 
     }
 

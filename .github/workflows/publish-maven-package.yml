@@ -36,34 +36,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Installing parent pom file
+      - name: Installing Groovy 3 version
         run: |
           
-          localm2=$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
-          echo Local M2: ${localm2}
-          
-          mkdir -p repository/com/eficode/atlassian/JiraShortcuts
-          
-          echo Installing parent pom file
-          mvn install:install-file -Dpackaing=pom -Dfile=pom.xml -DpomFile=pom.xml -DcreateChecksum=true
+        
+          mkdir -p repository/com/eficode/atlassian/jiraShortcuts
+          echo Compiling, Packaging and Installing Groovy 3.0 version of library to local m2 directory
+          mvn install -P groovy-3 -DcreateChecksum=true -Drevision=3.0
+
 
       - name: Installing Groovy 2.5 Version
         run: |
           
           echo Compiling, Packaging and Installing Groovy 2.5 version of library to local m2 directory
-          mvn install -f pom-2.5.xml -DcreateChecksum=true
-
-      - name: Installing Groovy 3 Version
-        run: |
-          
-          echo Compiling, Packaging and Installing Groovy 3.0 version of library to local m2 directory
-          mvn install -f pom-3.0.xml  -DcreateChecksum=true
-          
-
+          mvn install -P groovy-2.5 -DcreateChecksum=true -Drevision=2.5
       - name: Copying JAR files
         run: |
           echo Copying the new JAR files to repository which will be added to git branch "packages"
-          rsync -avh --checksum ~/.m2/repository/com/eficode/atlassian/JiraShortcuts/ repository/com/eficode/atlassian/JiraShortcuts/
+          rsync -avh --checksum ~/.m2/repository/com/eficode/atlassian/jiraShortcuts/ repository/com/eficode/atlassian/jiraShortcuts/
           
       - name: Committing and pushing JAR files
         run: |
